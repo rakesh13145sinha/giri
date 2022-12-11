@@ -2046,6 +2046,26 @@ class SiteObservationReportGenerate(APIView):
        
     
 class SiteObservationImage(APIView):
+    def get(self,request):
+        site_observation_id=request.GET['site_image_id']
+        if site_observation_id=="":
+            return Response({"message":"site_observation_id should not empty string","status":False},satatus=400)
+            
+        images=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
+        return Response({"message":"success",
+                             "status":True,
+                             "site_image_id":site_observation_id,
+                             'image':[{
+                                 "id":image.id,
+                                 "image":image.image.url if image.image else None,
+                                 "site_image_id":image.site_image_id
+                             }
+                                 
+                                 for image in images
+                             ]
+                             
+                             },status=200) 
+    
     
     def post(self,request):
         if not request.POST._mutable:
