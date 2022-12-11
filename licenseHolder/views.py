@@ -2048,17 +2048,19 @@ class SiteObservationReportGenerate(APIView):
 class SiteObservationImage(APIView):
     def get(self,request):
         site_observation_id=request.GET['site_image_id']
-        if site_observation_id=="":
-            return Response({"message":"site_observation_id should not empty string","status":False},satatus=400)
+        submit_form_number=int(request.GET['submission'])#1,2
+        if site_observation_id=="" or submit_form_number =="":
+            return Response({"message":"Values can't not empty","status":False},satatus=400)
             
-        images=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
+        images=ObservationReportImage.objects.filter(site_image_id=site_observation_id,submit_number=submit_form_number)
         return Response({"message":"success",
                              "status":True,
                              "site_image_id":site_observation_id,
                              'image':[{
                                  "id":image.id,
                                  "image":image.image.url if image.image else None,
-                                 "site_image_id":image.site_image_id
+                                 "site_image_id":image.site_image_id,
+                                 "submission_number":image.submit_number
                              }
                                  
                                  for image in images
@@ -2072,23 +2074,29 @@ class SiteObservationImage(APIView):
             request.POST._mutable=True
         data=request.data
         site_observation_id=request.GET['site_image_id']
-        
+        submit_form_number=int(request.GET['submission'])#1,2
+        if submit_form_number =="":
+            return Response({"message":"Values can't not empty","status":False},satatus=400)
         uploadfile=data['image']
         format, imgstr = uploadfile.split(';base64,')
         ext = format.split('/')[-1]
         uploadfile = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
-        this_image=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
+        this_image=ObservationReportImage.objects \
+            .filter(site_image_id__exact=site_observation_id,)
         if this_image.exists():
-            obj=ObservationReportImage.objects.create(image=uploadfile,site_image_id=site_observation_id)
-            images=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
+            obj=ObservationReportImage.objects \
+                .create(image=uploadfile,site_image_id=site_observation_id,submit_number=submit_form_number)
+            images=ObservationReportImage.objects \
+                .filter(site_image_id__exact=site_observation_id,submit_number=submit_form_number)
             return Response({"message":"image uploaded successfully",
                              "status":True,
                              "site_image_id":site_observation_id,
                              'image':[{
                                  "id":image.id,
                                  "image":image.image.url if image.image else None,
-                                 "site_image_id":image.site_image_id
+                                 "site_image_id":image.site_image_id,
+                                 "submission_number":image.submit_number
                              }
                                  
                                  for image in images
@@ -2096,15 +2104,18 @@ class SiteObservationImage(APIView):
                              
                              },status=200) 
         else:
-            obj=ObservationReportImage.objects.create(image=uploadfile)
-            images=ObservationReportImage.objects.filter(site_image_id=obj.site_image_id)
+            obj=ObservationReportImage.objects \
+                .create(image=uploadfile,submit_number=submit_form_number)
+            images=ObservationReportImage.objects \
+                .filter(site_image_id=obj.site_image_id,submit_number=submit_form_number)
             return Response({"message":"image uploaded successfully",
                              "status":True,
                              "site_image_id":obj.site_image_id,
                              'image':[{
                                  "id":image.id,
                                  "image":image.image.url if image.image else None,
-                                 "site_image_id":image.site_image_id
+                                 "site_image_id":image.site_image_id,
+                                 "submission_number":image.submit_number
                              }
                                  
                                  for image in images
