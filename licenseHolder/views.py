@@ -2052,17 +2052,29 @@ class SiteObservationImage(APIView):
             request.POST._mutable=True
         data=request.data
         site_observation_id=request.GET['site_image_id']
-        this_image=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
+        
         uploadfile=data['image']
         format, imgstr = uploadfile.split(';base64,')
         ext = format.split('/')[-1]
         uploadfile = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        #print(uploadfile)
-        print("=====base64 change image====")
+
+        this_image=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
         if this_image.exists():
             obj=ObservationReportImage.objects.create(image=uploadfile,site_image_id=site_observation_id)
+            images=ObservationReportImage.objects.filter(site_image_id__exact=site_observation_id)
             return Response({"message":"image uploaded successfully",
-                             "status":True,"site_image_id":site_observation_id},status=200) 
+                             "status":True,
+                             "site_image_id":site_observation_id,
+                             'image':[{
+                                 "id":image.id,
+                                 "image":image.image.url if image.image else None,
+                                 "site_image_id":image.site_image_id
+                             }
+                                 
+                                 for image in images
+                             ]
+                             
+                             },status=200) 
         else:
             obj=ObservationReportImage.objects.create(image=uploadfile)
             return Response({"message":"image uploaded successfully",

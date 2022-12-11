@@ -80,7 +80,7 @@ class Loggin(APIView):
             if user is not None :
                 if  user.is_superuser:
                     # 
-                    login(request,user)
+                    # login(request,user)
                     return Response({
                         "message":"login succussful",
                        
