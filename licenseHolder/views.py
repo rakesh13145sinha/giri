@@ -2049,10 +2049,11 @@ class SiteObservationImage(APIView):
     def get(self,request):
         site_observation_id=request.GET['site_image_id']
         submit_form_number=int(request.GET['submission'])#1,2
-        if site_observation_id=="" or submit_form_number =="":
+        if site_observation_id=="":
             return Response({"message":"Values can't not empty","status":False},satatus=400)
             
-        images=ObservationReportImage.objects.filter(site_image_id=site_observation_id,submit_number=submit_form_number)
+        images=ObservationReportImage.objects \
+        .filter(site_image_id=site_observation_id,submit_number=submit_form_number).order_by('-id')
         return Response({"message":"success",
                              "status":True,
                              "site_image_id":site_observation_id,
@@ -2088,7 +2089,7 @@ class SiteObservationImage(APIView):
             obj=ObservationReportImage.objects \
                 .create(image=uploadfile,site_image_id=site_observation_id,submit_number=submit_form_number)
             images=ObservationReportImage.objects \
-                .filter(site_image_id__exact=site_observation_id,submit_number=submit_form_number)
+                .filter(site_image_id__exact=site_observation_id,submit_number=submit_form_number).order_by('-id')
             return Response({"message":"image uploaded successfully",
                              "status":True,
                              "site_image_id":site_observation_id,
@@ -2107,7 +2108,7 @@ class SiteObservationImage(APIView):
             obj=ObservationReportImage.objects \
                 .create(image=uploadfile,submit_number=submit_form_number)
             images=ObservationReportImage.objects \
-                .filter(site_image_id=obj.site_image_id,submit_number=submit_form_number)
+                .filter(site_image_id=obj.site_image_id,submit_number=submit_form_number).order_by('-id')
             return Response({"message":"image uploaded successfully",
                              "status":True,
                              "site_image_id":obj.site_image_id,
