@@ -2097,8 +2097,20 @@ class SiteObservationImage(APIView):
                              },status=200) 
         else:
             obj=ObservationReportImage.objects.create(image=uploadfile)
+            images=ObservationReportImage.objects.filter(site_image_id=obj.site_image_id)
             return Response({"message":"image uploaded successfully",
-                             "status":True,"site_image_id":obj.site_image_id},status=200)
+                             "status":True,
+                             "site_image_id":obj.site_image_id,
+                             'image':[{
+                                 "id":image.id,
+                                 "image":image.image.url if image.image else None,
+                                 "site_image_id":image.site_image_id
+                             }
+                                 
+                                 for image in images
+                             ]
+                             
+                             },status=200)
         
     def put(self,request):
         if not request.POST._mutable:
