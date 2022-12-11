@@ -196,6 +196,7 @@ class ObservationReportImage(models.Model):
     #obsevation_report=models.ForeignKey(SiteObservationReport,on_delete=models.CASCADE)
     image=models.ImageField(upload_to='obsevation/report')
     site_image_id=models.CharField(max_length=200,null=True,blank=True)
+    submit_number=models.PositiveIntegerField(null=True,blank=True)
 
 class NonComplianceReport(models.Model):
     CATEGORY=[('Quality','Quality'),('Safety','Safety'),('Housekeeping',"Housekeeping")]
